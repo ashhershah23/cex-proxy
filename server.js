@@ -1,7 +1,4 @@
 import express from "express";
-import fetchOrig from "node-fetch";
-
-const fetch = fetchOrig; // node-fetch v3 ESM
 
 const app = express();
 
@@ -16,6 +13,7 @@ app.get("/cex", async (req, res) => {
   const cexUrl = "https://wss2.cex.uk.webuy.io/v3/boxes?q=" + encodeURIComponent(q);
 
   try {
+    // 8s timeout
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
 
@@ -34,6 +32,7 @@ app.get("/cex", async (req, res) => {
     const boxes = data?.data?.boxes ?? [];
     if (!boxes.length) return res.json({ error: "no_match" });
 
+    // simple best-choice heuristic
     let best = boxes[0], bestScore = -1;
     for (const b of boxes) {
       const title = (b.boxName || "").toLowerCase();
@@ -59,4 +58,3 @@ app.get("/cex", async (req, res) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log("listening on " + port));
-Add server.js
